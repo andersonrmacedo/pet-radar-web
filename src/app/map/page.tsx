@@ -11,6 +11,7 @@ const ReportsMap = dynamic(() => import('@/components/ReportsMap'), { ssr: false
 export default function MapPage() {
   const [reports, setReports] = useState<Report[]>([])
   const [loading, setLoading] = useState(true)
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | undefined>()
 
   useEffect(() => {
     axios
@@ -18,6 +19,12 @@ export default function MapPage() {
       .then((res) => setReports(res.data))
       .catch(() => {})
       .finally(() => setLoading(false))
+  }, [])
+
+  useEffect(() => {
+    navigator.geolocation?.getCurrentPosition((pos) => {
+      setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+    })
   }, [])
 
   return (
@@ -44,7 +51,7 @@ export default function MapPage() {
             <span className="text-zinc-400">Carregando mapa...</span>
           </div>
         )}
-        <ReportsMap reports={reports} />
+        <ReportsMap reports={reports} userLocation={userLocation} />
       </div>
     </div>
   )

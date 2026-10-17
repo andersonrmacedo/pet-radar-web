@@ -6,9 +6,10 @@ import 'leaflet/dist/leaflet.css'
 
 interface Props {
   reports: Report[]
+  userLocation?: { lat: number; lng: number }
 }
 
-export default function ReportsMap({ reports }: Props) {
+export default function ReportsMap({ reports, userLocation }: Props) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<import('leaflet').Map | null>(null)
 
@@ -39,7 +40,12 @@ export default function ReportsMap({ reports }: Props) {
         shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
       })
 
-      const map = L.map(mapRef.current as HTMLDivElement).setView([-14.235, -51.925], 4)
+      const center: [number, number] = userLocation
+        ? [userLocation.lat, userLocation.lng]
+        : [-14.235, -51.925]
+
+      const zoom = userLocation ? 13 : 4
+      const map = L.map(mapRef.current as HTMLDivElement).setView(center, zoom)
       mapInstanceRef.current = map
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -78,7 +84,7 @@ export default function ReportsMap({ reports }: Props) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       delete (container as any)._leaflet_id
     }
-  }, [reports])
+  }, [reports, userLocation])
 
   return <div ref={mapRef} style={{ height: '100%', width: '100%' }} />
 }
