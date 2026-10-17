@@ -16,7 +16,7 @@ export default function Home() {
           Reportar animal
         </Link>
         <Link
-          href="/mapa"
+          href="/map"
           className="border border-zinc-700 hover:border-zinc-500 text-zinc-300 font-semibold px-6 py-3 rounded-xl transition"
         >
           Ver mapa
