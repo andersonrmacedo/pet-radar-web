@@ -11,20 +11,35 @@ const ReportsMap = dynamic(() => import('@/components/ReportsMap'), { ssr: false
 export default function MapPage() {
   const [reports, setReports] = useState<Report[]>([])
   const [loading, setLoading] = useState(true)
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | undefined>()
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
 
   useEffect(() => {
+    if (userLocation === undefined) return
+
+    const url = userLocation
+      ? `${process.env.NEXT_PUBLIC_API_URL}/reports/nearby?lat=${userLocation.lat}&lng=${userLocation.lng}&radius=10`
+      : `${process.env.NEXT_PUBLIC_API_URL}/reports`
+
     axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}/reports`)
+      .get(url)
       .then((res) => setReports(res.data))
       .catch(() => {})
       .finally(() => setLoading(false))
-  }, [])
+  }, [userLocation])
 
   useEffect(() => {
-    navigator.geolocation?.getCurrentPosition((pos) => {
-      setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude })
-    })
+    navigator.geolocation?.getCurrentPosition(
+      (pos) => {
+        setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+      },
+      () => {
+        axios
+          .get(`${process.env.NEXT_PUBLIC_API_URL}/reports`)
+          .then((res) => setReports(res.data))
+          .catch(() => {})
+          .finally(() => setLoading(false))
+      }
+    )
   }, [])
 
   return (
@@ -51,7 +66,7 @@ export default function MapPage() {
             <span className="text-zinc-400">Carregando mapa...</span>
           </div>
         )}
-        <ReportsMap reports={reports} userLocation={userLocation} />
+        <ReportsMap reports={reports} userLocation={userLocation ?? undefined} />
       </div>
     </div>
   )
