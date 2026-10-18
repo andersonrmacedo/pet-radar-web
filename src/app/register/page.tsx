@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { api } from '@/lib/api'
@@ -21,8 +22,12 @@ export default function RegisterPage() {
         password: form.get('password'),
       })
       router.push('/login')
-    } catch {
-      setError('Erro ao criar conta. Tente novamente.')
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.status === 409) {
+        setError('Este email já está cadastrado.')
+      } else {
+        setError('Erro ao criar conta. Tente novamente.')
+      }
     } finally {
       setLoading(false)
     }
