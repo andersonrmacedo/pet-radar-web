@@ -86,6 +86,7 @@ export default function RegisterPage() {
                 type="password"
                 placeholder="Mínimo 8 caracteres"
                 required
+                minLength={8}
                 autoComplete="new-password"
                 className={inputClass}
               />
