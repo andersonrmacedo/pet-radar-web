@@ -21,6 +21,18 @@ export default function Home() {
         >
           Ver mapa
         </Link>
+        <Link
+          href="/login"
+          className="border border-zinc-700 hover:border-zinc-500 text-zinc-300 font-semibold px-6 py-3 rounded-xl transition"
+        >
+          Entrar
+        </Link>
+        <Link
+          href="/register"
+          className="border border-zinc-700 hover:border-zinc-500 text-zinc-300 font-semibold px-6 py-3 rounded-xl transition"
+        >
+          Criar conta
+        </Link>
       </div>
     </main>
   )

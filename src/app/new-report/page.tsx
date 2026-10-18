@@ -7,6 +7,7 @@ import { z } from "zod";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { api } from "@/lib/api";
 
 const schema = z.object({
   type: z.enum(["lost", "found"]),
@@ -87,7 +88,7 @@ export default function NovoReport() {
       });
       if (photoFile) form.append("photo", photoFile);
 
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/reports`, form);
+      await api.post("/reports", form);
       router.push("/");
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
