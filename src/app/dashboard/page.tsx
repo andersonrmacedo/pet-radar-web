@@ -13,6 +13,19 @@ export default function DashboardPage() {
   const router = useRouter();
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
+  const [resolving, setResolving] = useState<string | null>(null);
+
+  async function handleResolve(id: string) {
+    setResolving(id);
+    try {
+      await api.patch(`/reports/${id}/resolve`);
+      setReports((prev) => prev.filter((r) => r.id !== id));
+    } catch {
+      alert("Erro ao marcar como resolvido.");
+    } finally {
+      setResolving(null);
+    }
+  }
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -112,6 +125,16 @@ export default function DashboardPage() {
                 )}
 
                 <p className="text-[#7D8590] text-sm">📞 {r.contact_phone}</p>
+
+                {r.status === "active" && (
+                  <button
+                    onClick={() => handleResolve(r.id)}
+                    disabled={resolving === r.id}
+                    className="mt-2 w-full border border-green-500/30 hover:border-green-500 text-green-400 hover:text-green-300 text-sm font-medium py-2 rounded-xl transition-colors disabled:opacity-50"
+                  >
+                    {resolving === r.id ? "Marcando..." : "🎉 Animal encontrado"}
+                  </button>
+                )}
               </div>
             </div>
           ))}
