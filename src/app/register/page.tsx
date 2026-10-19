@@ -9,6 +9,7 @@ export default function RegisterPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -53,9 +54,11 @@ export default function RegisterPage() {
             <p className="text-[#7D8590] text-sm mt-1">Junte-se à comunidade e ajude animais perdidos</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
             <div>
-              <label className="text-[#7D8590] text-sm mb-2 block font-medium">Nome</label>
+              <label className="text-[#7D8590] text-sm mb-2 block font-medium">
+                Nome <span className="text-[#F59E0B]">*</span>
+              </label>
               <input
                 name="name"
                 type="text"
@@ -67,7 +70,9 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="text-[#7D8590] text-sm mb-2 block font-medium">Email</label>
+              <label className="text-[#7D8590] text-sm mb-2 block font-medium">
+                Email <span className="text-[#F59E0B]">*</span>
+              </label>
               <input
                 name="email"
                 type="email"
@@ -80,16 +85,40 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="text-[#7D8590] text-sm mb-2 block font-medium">Senha</label>
-              <input
-                name="password"
-                type="password"
-                placeholder="Mínimo 8 caracteres"
-                required
-                minLength={8}
-                autoComplete="new-password"
-                className={inputClass}
-              />
+              <label className="text-[#7D8590] text-sm mb-2 block font-medium">
+                Senha <span className="text-[#F59E0B]">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Mínimo 8 caracteres"
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                  className={`${inputClass} pr-11`}
+                />
+                <button
+                  type="button"
+                  aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7D8590] hover:text-[#E6EDF3] transition-colors"
+                >
+                  {showPassword ? (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M3 3l18 18" />
+                      <path d="M10.58 10.58A2 2 0 0 0 13.42 13.42" />
+                      <path d="M9.88 5.08A10.94 10.94 0 0 1 12 5c4.97 0 9 4.06 9 7a12.79 12.79 0 0 1-3.82 5.52" />
+                      <path d="M6.61 6.61A12.78 12.78 0 0 0 3 12c0 2.94 4.03 7 9 7a9.53 9.53 0 0 0 4.27-1.05" />
+                    </svg>
+                  ) : (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  )}
+                </button>
+              </div>
             </div>
 
             {error && (
