@@ -67,7 +67,8 @@ export default function ReportsMap({ reports, userLocation }: Props) {
             ${report.photo_url ? `<img src="${report.photo_url}" style="width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:8px" />` : ''}
             <strong>${report.type === 'lost' ? 'Perdido' : 'Encontrado'}</strong><br/>
             <span>${report.species} · ${report.size} · ${report.color}</span><br/>
-            <span>📞 ${report.contact_phone}</span>
+            <span>📞 ${report.contact_phone}</span><br/><br/>
+            <a href="/reports/${report.id}" style="display:block;background:#F59E0B;color:#0D1117;text-align:center;padding:6px 12px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none">Ver detalhes →</a>
           </div>
         `
 
