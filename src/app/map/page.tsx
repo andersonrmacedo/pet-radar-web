@@ -1,46 +1,65 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import type { Report } from "@/types/report";
 
-const ReportsMap = dynamic(() => import("@/components/ReportsMap"), { ssr: false });
+const ReportsMap = dynamic(() => import("@/components/ReportsMap"), {
+  ssr: false,
+});
 
 export default function MapPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [userLocation, setUserLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+  const [locationDenied, setLocationDenied] = useState(false);
   const [radius, setRadius] = useState(10);
   const [species, setSpecies] = useState("all");
   const [type, setType] = useState("all");
 
-  function fetchReports(loc: { lat: number; lng: number } | null, r: number) {
-    const url = loc
-      ? `/reports/nearby?lat=${loc.lat}&lng=${loc.lng}&radius=${r}`
-      : `/reports`;
-    api
-      .get(url)
-      .then((res) => setReports(res.data))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }
+  const fetchReports = useCallback(
+    (loc: { lat: number; lng: number } | null, r: number) => {
+      const url = loc
+        ? `/reports/nearby?lat=${loc.lat}&lng=${loc.lng}&radius=${r}`
+        : `/reports`;
+      api
+        .get(url)
+        .then((res) => setReports(res.data))
+        .catch(() => {})
+        .finally(() => setLoading(false));
+    },
+    [],
+  );
 
   useEffect(() => {
-    navigator.geolocation?.getCurrentPosition(
+    fetchReports(userLocation, radius);
+  }, [fetchReports, radius, userLocation]);
+
+  function requestLocation() {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setLocationDenied(true);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
       (pos) => {
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setUserLocation(loc);
-        fetchReports(loc, radius);
+        setLocationDenied(false);
       },
-      () => fetchReports(null, radius),
+      () => {
+        setLocationDenied(true);
+      },
     );
-  }, [radius]);
+  }
 
   function handleRadiusChange(newRadius: number) {
     setRadius(newRadius);
-    fetchReports(userLocation, newRadius);
   }
 
   const filtered = reports.filter((r) => {
@@ -115,6 +134,16 @@ export default function MapPage() {
             <option value="other">Outro</option>
           </select>
 
+          {!userLocation && (
+            <button
+              type="button"
+              onClick={requestLocation}
+              className="text-[#7D8590] hover:text-[#F59E0B] text-sm whitespace-nowrap shrink-0 transition-colors"
+            >
+              📍 Usar minha localização
+            </button>
+          )}
+
           {userLocation && (
             <div className="flex items-center gap-2 shrink-0">
               <input
@@ -129,6 +158,12 @@ export default function MapPage() {
                 {radius} km
               </span>
             </div>
+          )}
+
+          {locationDenied && !userLocation && (
+            <span className="text-[#7D8590] text-sm whitespace-nowrap shrink-0">
+              Permissão de localização negada.
+            </span>
           )}
 
           <span className="text-[#7D8590] text-sm whitespace-nowrap shrink-0 ml-auto pl-2">
@@ -147,7 +182,10 @@ export default function MapPage() {
             </div>
           </div>
         )}
-        <ReportsMap reports={filtered} userLocation={userLocation ?? undefined} />
+        <ReportsMap
+          reports={filtered}
+          userLocation={userLocation ?? undefined}
+        />
       </div>
     </div>
   );
